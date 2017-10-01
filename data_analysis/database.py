@@ -6,7 +6,8 @@ from sqlalchemy import (create_engine,
                         Integer,
                         Boolean,
                         Table,
-                        ForeignKey)
+                        ForeignKey,
+                        DateTime)
 
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,8 +30,9 @@ Session = sessionmaker(bind=engine, autoflush=False)
 # Create a session
 session = Session()
 
-hastag_tweet = Table('hastag_tweet', Base.metadata,
-                     Column('hashtag_id', Integer, ForeignKey('hastag.id'), nullable=False)
+hashtag_tweet = Table('hashtag_tweet', Base.metadata,
+                     Column('hashtag_id', Integer, ForeignKey('hashtag.id'),
+                         nullable=False),
                      Column('tweet_id', Integer, ForeignKey('tweets.id'), nullable=False))
 
 class Tweet(Base):
@@ -41,7 +43,7 @@ class Tweet(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     coordinates = Column(String(50), nullable=True)
     user = relationship('User', backref='tweets')
-    created_at = Column(String(100), nullable=False)
+    created_at = Column(DateTime, nullable=False)
     favorite_count = Column(Integer)
     in_reply_to_screen_name = Column(String)
     in_reply_to_status_id = Column(Integer)
@@ -51,8 +53,8 @@ class Tweet(Base):
     retweet_count = Column(Integer)
     source = Column(String)
     is_retweet = Column(Boolean)
-    hastags = relationship('Hastag',
-                           secondary='hastag_tweet',
+    hashtags = relationship('Hashtag',
+                           secondary='hashtag_tweet',
                            back_populates='tweets')
 
     def __repr__(self):
@@ -80,7 +82,7 @@ class User(Base):
         return '<User {}>'.format(self.id)
 
 
-class Hastag(Base):
+class Hashtag(Base):
     __tablename__ = 'hashtags'
     id = Column(Integer, primary_key=True)
     text = Column(String(200), nullable=False)
